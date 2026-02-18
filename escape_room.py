@@ -22,7 +22,11 @@ def living_room():
     global torch_has_battery
 
     print("\n you are in the living room")
-    print("you can inspect or move to other rooms so options: inspect/ go kitchen / go bedroom / go studyroom")
+    print("Options: inspect/ go kitchen / go bedroom / go studyroom")
+
+    #if they saw the riddle, give them a hint
+    if saw_riddle and not candle_melted:
+        print("Hint: u remember the riddle about burning... must check inventory")
 
     choice = input("> ").lower()
 
@@ -52,10 +56,20 @@ def living_room():
             print('just books')
 
     elif choice.startswith("go"):
-        move(choice.split()[1])
+        dest=choice.split()[1]
 
+        if dest in ["kitchen", "bedroom", "studyroom"]:
+            move(dest)
+        else:
+            print("can't go there")
+
+    elif choice == "use":
+        use_items()
+        
     elif choice=='use battery':
-        if 'torch' in inventory and 'battery' in inventory:
+        if torch_has_battery:
+            print("torch already working")
+        elif 'torch' in inventory and 'battery' in inventory:
             print('u put battery in torch. torch works now')
             torch_has_battery = True
         else:
@@ -70,7 +84,8 @@ def bedroom():
     print("\n Bedroom is dark")
 
     if not torch_has_battery:
-        print("too dark, need light")
+        print("Too dark! You stumble back to the living room.")
+        move("living_room") # Send them back so they aren't stuck!
         return
     
     print("with torch u see a drawer")
@@ -114,7 +129,7 @@ def kitchen():
 
 
 def studyroom():
-    global locker_opened
+    global locker_opened, saw_riddle
 
     print("\n u r in study room now, there is a locker")
     print("option: open locker / back")
@@ -126,17 +141,18 @@ def studyroom():
                 print("locker opened")
                 print('clue: "To reach heaven, I must burn in hell"')
                 locker_opened=True
-            else:
+                saw_riddle=True
+        else:
                 print("need a key")
             
-        elif ch=="back":
+    elif ch=="back":
             move("living_room")
         
 
 # item use
 
 def use_items():
-    global candle_melted
+    global candle_melted,saw_riddle
 
     print("use what?")
     item = input("> ").lower()
@@ -157,7 +173,8 @@ def game():
 
     while True:
         if "final_key" in inventory:
-            print("\n you escaped! you win")
+            print("\n*** YOU FOUND THE HIDDEN KEY IN THE WAX! ***")
+            print("You unlocked the front door and escaped! YOU WIN!")
             break
 
         if current_room == "living_room":
@@ -170,8 +187,6 @@ def game():
         elif current_room == "studyroom":
             studyroom()
 
-        cmd = input("\n Type 'use' to use item or press enter:").lower()
-        if cmd == "use":
-            use_items()
+        
 
 game()
