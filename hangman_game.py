@@ -1,6 +1,6 @@
 import random
+from wordlist import words
 
-words = ("apple","orange","banana","coconut","pineapple")
 
 #dictionary
 
@@ -40,7 +40,7 @@ def display_ans(answer):
 def main():
    answer = random.choice(words)
    hint = ["_"] * len(answer)
-   wrong_guesses = 6
+   wrong_guesses = 0
    guessed_letters = set()
    is_running = True
 
@@ -53,11 +53,30 @@ def main():
          print("invalid input")
          continue
 
+      if guess in guessed_letters:
+         print(f"{guess} is already guessed")
+         continue
+      
+      guessed_letters.add(guess)
+
       if guess in answer:
          for i in range(len(answer)):
             if answer[i]==guess:
                hint[i]=guess
-        
+      else:
+         wrong_guesses += 1
+      
+      if "_" not in hint:
+         display_man(wrong_guesses)
+         display_ans(answer)
+         print("YOU WIN")
+         is_running = False
+      elif wrong_guesses >= len(hangman_art) - 1:
+         display_man(wrong_guesses)
+         display_ans(answer)
+         print("YOU LOSE")
+         is_running = False
+
 
 if __name__ == "__main__":
     main()
